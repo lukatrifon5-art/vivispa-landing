@@ -286,23 +286,13 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 .services-grid.carousel-track {
   display: flex;
   gap: 28px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scroll-behavior: smooth;
+  width: max-content;
   padding-bottom: 4px;
+  animation: carousel-marquee linear infinite;
+  animation-duration: var(--marquee-duration, 15s);
 }
-.services-grid.carousel-track::-webkit-scrollbar { display: none; }
 .services-grid.carousel-track .service-card {
-  flex: 0 0 calc(33.333% - 19px);
-  scroll-snap-align: start;
-}
-@media (max-width: 960px) {
-  .services-grid.carousel-track .service-card { flex: 0 0 calc(50% - 14px); }
-}
-@media (max-width: 760px) {
-  .services-grid.carousel-track .service-card { flex: 0 0 88%; }
+  flex: 0 0 var(--card-width, 320px);
 }
 
 /* ===== PACKAGES ===== */
@@ -364,25 +354,27 @@ nav a:hover::after, nav a.active::after { width: 100%; }
   background: var(--warm-beige);
   border-radius: var(--radius);
   padding: 36px 30px;
-  flex: 0 0 calc(33.333% - 17px);
-  scroll-snap-align: start;
+  flex: 0 0 var(--card-width, 320px);
 }
 .review-card .stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 16px; letter-spacing: 2px; }
 .review-card p { font-size: 0.95rem; color: var(--charcoal-soft); margin-bottom: 22px; }
 .review-card .reviewer { font-size: 0.85rem; font-weight: 500; color: var(--charcoal); }
 
-.carousel-wrap { position: relative; }
+/* Continuous CSS marquee: content is duplicated once in JS, so -50% is exactly
+   one set's width and the loop point is mathematically seamless (no scroll races). */
+.carousel-wrap { position: relative; overflow: hidden; }
 .carousel-track {
   display: flex;
   gap: 26px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scroll-behavior: smooth;
+  width: max-content;
   padding-bottom: 4px;
+  animation: carousel-marquee linear infinite;
+  animation-duration: var(--marquee-duration, 15s);
 }
-.carousel-track::-webkit-scrollbar { display: none; }
+@keyframes carousel-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
 .carousel-arrow {
   position: absolute;
   top: 50%; transform: translateY(-50%);
@@ -402,11 +394,7 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 .carousel-arrow.prev { left: -23px; }
 .carousel-arrow.next { right: -23px; }
 @media (max-width: 960px) {
-  .review-card { flex: 0 0 calc(50% - 13px); }
   .carousel-arrow { display: none; }
-}
-@media (max-width: 760px) {
-  .review-card { flex: 0 0 88%; }
 }
 
 /* ===== GALLERY ===== */

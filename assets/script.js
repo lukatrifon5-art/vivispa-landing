@@ -48,63 +48,42 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 revealEls.forEach(el => revealObserver.observe(el));
 
-// Carousels (reviews, services, ...): seamless infinite auto-advance + manual arrows, pause on hover
+// Carousels (reviews, services, ...): continuous CSS marquee, truly infinite, never pauses
 document.querySelectorAll('.carousel-wrap').forEach(wrap => {
-  const carouselTrack = wrap.querySelector('.carousel-track');
-  if (!carouselTrack) return;
+  const track = wrap.querySelector('.carousel-track');
+  if (!track) return;
   const prevBtn = wrap.querySelector('.carousel-arrow.prev');
   const nextBtn = wrap.querySelector('.carousel-arrow.next');
 
-  // Duplicate the item set once so scrolling forward never has to jump backwards visibly
-  const originalCount = carouselTrack.children.length;
-  Array.from(carouselTrack.children).forEach(item => {
+  // Duplicate the item set once: the CSS animation moves exactly -50% (one set's
+  // width), so the loop point always lines up pixel-perfectly with no JS math.
+  const originalItems = Array.from(track.children);
+  originalItems.forEach(item => {
     const clone = item.cloneNode(true);
     clone.classList.remove('reveal', 'reveal-delay-1', 'reveal-delay-2', 'reveal-delay-3');
-    carouselTrack.appendChild(clone);
+    track.appendChild(clone);
   });
 
-  const step = () => {
-    const item = carouselTrack.firstElementChild;
-    if (!item) return 0;
-    const gap = parseFloat(getComputedStyle(carouselTrack).columnGap) || 0;
-    return item.getBoundingClientRect().width + gap;
+  const visibleCount = () => window.innerWidth <= 760 ? 1 : window.innerWidth <= 960 ? 2 : 3;
+  const gap = parseFloat(getComputedStyle(track).columnGap) || 26;
+  const secondsPerCard = 1;
+
+  const sizeTrack = () => {
+    const count = visibleCount();
+    const cardWidth = (wrap.clientWidth - gap * (count - 1)) / count;
+    track.style.setProperty('--card-width', cardWidth + 'px');
+    track.style.setProperty('--marquee-duration', (originalItems.length * secondsPerCard) + 's');
   };
-  const setWidth = () => {
-    const firstClone = carouselTrack.children[originalCount];
-    return firstClone ? firstClone.offsetLeft - carouselTrack.offsetLeft : carouselTrack.scrollWidth / 2;
+  sizeTrack();
+  window.addEventListener('resize', sizeTrack);
+
+  const nudge = (dir) => {
+    const anim = track.getAnimations()[0];
+    if (!anim) return;
+    anim.currentTime = (anim.currentTime || 0) + dir * secondsPerCard * 1000;
   };
-
-  // Once scrolling settles past the original set (into the cloned copy), snap back invisibly.
-  // Driven by the scroll event itself (debounced) so it never races with overlapping
-  // autoplay ticks or manual arrow clicks.
-  let settleTimer;
-  carouselTrack.addEventListener('scroll', () => {
-    clearTimeout(settleTimer);
-    settleTimer = setTimeout(() => {
-      const width = setWidth();
-      if (carouselTrack.scrollLeft >= width - 2) {
-        carouselTrack.scrollTo({ left: carouselTrack.scrollLeft - width, behavior: 'auto' });
-      } else if (carouselTrack.scrollLeft < 0) {
-        carouselTrack.scrollTo({ left: carouselTrack.scrollLeft + width, behavior: 'auto' });
-      }
-    }, 120);
-  });
-
-  const scrollNext = () => carouselTrack.scrollBy({ left: step(), behavior: 'smooth' });
-  const scrollPrev = () => {
-    if (carouselTrack.scrollLeft <= 2) {
-      carouselTrack.scrollTo({ left: setWidth(), behavior: 'auto' });
-    }
-    carouselTrack.scrollBy({ left: -step(), behavior: 'smooth' });
-  };
-
-  if (nextBtn) nextBtn.addEventListener('click', scrollNext);
-  if (prevBtn) prevBtn.addEventListener('click', scrollPrev);
-
-  const intervalMs = parseInt(wrap.dataset.interval, 10) || 2500;
-  let autoplay = setInterval(scrollNext, intervalMs);
-  wrap.addEventListener('mouseenter', () => clearInterval(autoplay));
-  wrap.addEventListener('mouseleave', () => { autoplay = setInterval(scrollNext, intervalMs); });
+  if (nextBtn) nextBtn.addEventListener('click', () => nudge(1));
+  if (prevBtn) prevBtn.addEventListener('click', () => nudge(-1));
 });
 
 // Lightbox for gallery pages
