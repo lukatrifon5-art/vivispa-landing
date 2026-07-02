@@ -404,7 +404,7 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 }
 @keyframes carousel-marquee {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  to { transform: translateX(calc(-1 * var(--slide-distance, 50%))); }
 }
 .carousel-arrow {
   position: absolute;

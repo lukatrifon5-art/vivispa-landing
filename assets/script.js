@@ -79,6 +79,12 @@ document.querySelectorAll('.carousel-wrap').forEach(wrap => {
     lastCardWidth = cardWidth;
     track.style.setProperty('--card-width', cardWidth + 'px');
     track.style.setProperty('--marquee-duration', (originalItems.length * secondsPerCard) + 's');
+    // Exact pixel distance to the start of the cloned set. Using -50% here would be
+    // wrong: the track's total width includes one extra gap at the original/clone
+    // boundary, so 50% of it lands half a gap short of the clone's actual start,
+    // causing a small but real jump every time the animation loops.
+    const slideDistance = originalItems.length * (cardWidth + gap);
+    track.style.setProperty('--slide-distance', slideDistance + 'px');
   };
   sizeTrack();
   let resizeTimer;
