@@ -48,6 +48,40 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 revealEls.forEach(el => revealObserver.observe(el));
 
+// Reviews carousel: auto-advance + manual arrows, pause on hover
+const carouselTrack = document.getElementById('reviewsTrack');
+if (carouselTrack) {
+  const prevBtn = document.querySelector('.carousel-arrow.prev');
+  const nextBtn = document.querySelector('.carousel-arrow.next');
+  const step = () => carouselTrack.querySelector('.review-card').getBoundingClientRect().width + 26;
+
+  const scrollNext = () => {
+    const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+    if (carouselTrack.scrollLeft >= maxScroll - 4) {
+      carouselTrack.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      carouselTrack.scrollBy({ left: step(), behavior: 'smooth' });
+    }
+  };
+  const scrollPrev = () => {
+    if (carouselTrack.scrollLeft <= 4) {
+      carouselTrack.scrollTo({ left: carouselTrack.scrollWidth, behavior: 'smooth' });
+    } else {
+      carouselTrack.scrollBy({ left: -step(), behavior: 'smooth' });
+    }
+  };
+
+  if (nextBtn) nextBtn.addEventListener('click', scrollNext);
+  if (prevBtn) prevBtn.addEventListener('click', scrollPrev);
+
+  let autoplay = setInterval(scrollNext, 4500);
+  const wrap = carouselTrack.closest('.carousel-wrap');
+  if (wrap) {
+    wrap.addEventListener('mouseenter', () => clearInterval(autoplay));
+    wrap.addEventListener('mouseleave', () => { autoplay = setInterval(scrollNext, 4500); });
+  }
+}
+
 // Lightbox for gallery pages
 const lightbox = document.getElementById('lightbox');
 if (lightbox) {
