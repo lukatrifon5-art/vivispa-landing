@@ -49,6 +49,50 @@
 
 <section class="contact" id="contact-form" style="padding-top:100px;">
   <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Rezervă acum</span>
+      <h2 class="section-title">Trimite-ne detaliile tale</h2>
+      <p class="section-lead">Completează formularul și te contactăm în cel mai scurt timp pentru a confirma rezervarea.</p>
+    </div>
+    <form class="booking-form reveal" id="bookingForm">
+      <div class="booking-row">
+        <div class="field">
+          <label for="bf-name">Nume</label>
+          <input type="text" id="bf-name" name="name" required placeholder="Numele tău">
+        </div>
+        <div class="field">
+          <label for="bf-phone">Telefon</label>
+          <input type="tel" id="bf-phone" name="phone" required placeholder="+373 6XX XX XXX">
+        </div>
+      </div>
+      <div class="booking-row">
+        <div class="field">
+          <label for="bf-service">Serviciu dorit</label>
+          <select id="bf-service" name="service">
+            <option value="">Alege un serviciu (opțional)</option>
+            <option>Aqua Zonă</option>
+            <option>Masaj</option>
+            <option>Cosmetologie</option>
+            <option>Peeling turcesc cu masaj de spumă</option>
+            <option>Proceduri de remodelare</option>
+            <option>SPA Cupluri</option>
+            <option>SPA Domni</option>
+            <option>SPA Doamne</option>
+            <option>Gift Card</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bf-date">Data preferată</label>
+          <input type="date" id="bf-date" name="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="bf-message">Mesaj (opțional)</label>
+        <textarea id="bf-message" name="message" rows="3" placeholder="Detalii suplimentare..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-gold">Trimite cererea</button>
+      <p class="booking-status" id="bookingStatus"></p>
+    </form>
     <div class="contact-grid">
       <div class="contact-info reveal">
         <h3>Detalii de contact</h3>

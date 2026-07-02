@@ -445,6 +445,45 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 
 /* ===== CONTACT ===== */
 .contact { padding: 120px 0; }
+
+.booking-form {
+  background: var(--warm-beige);
+  border-radius: var(--radius);
+  padding: 42px;
+  max-width: 720px;
+  margin: 0 auto 90px;
+}
+.booking-row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.field { margin-bottom: 20px; }
+.field label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--charcoal-soft);
+  margin-bottom: 8px;
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid rgba(46,42,36,0.16);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--charcoal);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.95rem;
+  transition: border-color .3s ease;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.field textarea { resize: vertical; }
+.booking-form .btn { width: 100%; border: none; cursor: pointer; }
+.booking-status { margin-top: 14px; font-size: 0.9rem; text-align: center; min-height: 1.2em; }
+.booking-status.success { color: var(--sage); }
+.booking-status.error { color: #b0574f; }
+
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
 .contact-info h3 { font-size: 1.4rem; margin-bottom: 26px; }
 .contact-row { display: flex; gap: 16px; margin-bottom: 22px; align-items: flex-start; }
@@ -532,6 +571,8 @@ footer .logo span { color: var(--gold-soft); }
   .services-grid, .packages-grid, .reviews-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .contact-grid { grid-template-columns: 1fr; gap: 44px; }
+  .booking-row { grid-template-columns: 1fr; gap: 0; }
+  .booking-form { padding: 30px; }
   .split-grid { grid-template-columns: 1fr; gap: 36px; }
   .split-grid.reverse .split-photo { order: 0; }
 }

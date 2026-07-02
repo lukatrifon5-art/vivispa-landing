@@ -86,6 +86,39 @@ document.querySelectorAll('.carousel-wrap').forEach(wrap => {
   if (prevBtn) prevBtn.addEventListener('click', () => nudge(-1));
 });
 
+// Booking form: sends the request to a serverless function that notifies the owner on Telegram
+const bookingForm = document.getElementById('bookingForm');
+if (bookingForm) {
+  const statusEl = document.getElementById('bookingStatus');
+  bookingForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = bookingForm.querySelector('button[type="submit"]');
+    const data = Object.fromEntries(new FormData(bookingForm));
+
+    submitBtn.disabled = true;
+    statusEl.textContent = 'Se trimite...';
+    statusEl.className = 'booking-status';
+
+    try {
+      const response = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Eroare necunoscută');
+      statusEl.textContent = 'Mulțumim! Te contactăm în curând pentru confirmare.';
+      statusEl.classList.add('success');
+      bookingForm.reset();
+    } catch (err) {
+      statusEl.textContent = 'Nu am putut trimite cererea. Sună-ne la +373 608 58 486.';
+      statusEl.classList.add('error');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+}
+
 // Lightbox for gallery pages
 const lightbox = document.getElementById('lightbox');
 if (lightbox) {
