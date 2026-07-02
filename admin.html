@@ -19,7 +19,7 @@
   .admin-field label { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--charcoal-soft); margin-bottom: 8px; }
   .admin-field input { width: 100%; padding: 13px 16px; border: 1px solid rgba(46,42,36,0.16); border-radius: 10px; background: var(--white); font-family: 'Jost', sans-serif; font-size: 0.95rem; }
   .admin-field input:focus { outline: none; border-color: var(--gold); }
-  .admin-btn { display: inline-block; padding: 13px 26px; border-radius: 999px; background: var(--charcoal); color: var(--cream); border: none; cursor: pointer; font-family: 'Jost', sans-serif; font-size: 0.9rem; letter-spacing: 0.02em; }
+  .admin-btn { display: inline-block; width: 100%; padding: 13px 26px; border-radius: 999px; background: var(--charcoal); color: var(--cream); border: none; cursor: pointer; font-family: 'Jost', sans-serif; font-size: 0.9rem; letter-spacing: 0.02em; text-align: center; }
   .admin-btn:hover { background: var(--gold); }
   .admin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
   .admin-msg { margin-top: 14px; font-size: 0.88rem; min-height: 1.2em; }
@@ -40,6 +40,7 @@
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
   .cal-weekday { text-align: center; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--charcoal-soft); padding-bottom: 6px; }
   .cal-day {
+    position: relative;
     aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
     border-radius: 10px; font-size: 0.92rem; cursor: pointer;
     background: var(--white); border: 1px solid transparent; color: var(--charcoal);
@@ -52,8 +53,37 @@
   .cal-day--closed { background: #b0574f; color: var(--white); }
   .cal-day--closed:hover { background: #9a4a44; }
   .cal-day--saving { opacity: 0.5; pointer-events: none; }
-  .cal-legend { display: flex; align-items: center; gap: 8px; margin-top: 18px; font-size: 0.82rem; color: var(--charcoal-soft); }
-  .cal-legend-dot { width: 12px; height: 12px; border-radius: 4px; background: #b0574f; display: inline-block; }
+  .cal-day-dot { position: absolute; bottom: 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+  .cal-day--closed .cal-day-dot { background: var(--white); }
+  .cal-legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 18px; font-size: 0.82rem; color: var(--charcoal-soft); }
+  .cal-legend span { display: flex; align-items: center; gap: 8px; }
+  .cal-legend-swatch { width: 12px; height: 12px; border-radius: 4px; background: #b0574f; display: inline-block; }
+  .cal-legend-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); display: inline-block; }
+
+  /* Day detail modal */
+  .day-modal {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(20, 18, 14, 0.62);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+    padding: 20px;
+  }
+  .day-modal.open { opacity: 1; pointer-events: auto; }
+  .day-modal-inner {
+    background: var(--cream); border-radius: var(--radius);
+    max-width: 480px; width: 100%; max-height: 82vh; overflow-y: auto;
+    padding: 34px; position: relative;
+  }
+  .day-modal-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(46,42,36,0.08); border: none; cursor: pointer; font-size: 1.2rem;
+  }
+  .day-modal h3 { font-family: 'Fraunces', serif; font-size: 1.3rem; margin-bottom: 18px; text-transform: capitalize; }
+  .booking-entry { background: var(--white); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; font-size: 0.88rem; line-height: 1.7; }
+  .booking-entry .b-time { color: var(--gold); font-weight: 600; }
+  .no-bookings { color: var(--charcoal-soft); font-size: 0.9rem; margin-bottom: 20px; }
+  .day-modal-toggle { margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -64,7 +94,7 @@
 
     <div id="loginPanel">
       <h1>Administrare rezervări</h1>
-      <p class="lead">Introdu parola pentru a gestiona zilele nelucrătoare.</p>
+      <p class="lead">Introdu parola pentru a gestiona zilele nelucrătoare și a vedea rezervările.</p>
       <div class="admin-field">
         <label for="admin-password">Parolă</label>
         <input type="password" id="admin-password" placeholder="Parola de administrare">
@@ -74,8 +104,8 @@
     </div>
 
     <div id="adminPanel">
-      <h1>Zile nelucrătoare</h1>
-      <p class="lead">Apasă pe o zi ca să o marchezi liberă (roșu) sau lucrătoare din nou. Clienții nu vor putea rezerva în zilele marcate roșu.</p>
+      <h1>Calendar rezervări</h1>
+      <p class="lead">Apasă pe orice zi pentru a vedea rezervările sau a o marca liberă/lucrătoare.</p>
 
       <div class="cal-header">
         <div class="cal-nav">
@@ -87,10 +117,21 @@
       </div>
       <div class="cal-grid" id="calGrid"></div>
 
-      <div class="cal-legend"><span class="cal-legend-dot"></span> Zi liberă (nelucrătoare)</div>
-
-      <p class="admin-msg" id="adminMsg"></p>
+      <div class="cal-legend">
+        <span><span class="cal-legend-swatch"></span> Zi liberă (nelucrătoare)</span>
+        <span><span class="cal-legend-dot"></span> Zi cu rezervări</span>
+      </div>
     </div>
+  </div>
+</div>
+
+<div class="day-modal" id="dayModal">
+  <div class="day-modal-inner">
+    <button class="day-modal-close" id="dayModalClose" aria-label="Închide">&times;</button>
+    <h3 id="dayModalTitle"></h3>
+    <div id="dayModalBookings"></div>
+    <button class="admin-btn day-modal-toggle" id="dayModalToggle"></button>
+    <p class="admin-msg" id="dayModalMsg"></p>
   </div>
 </div>
 
@@ -100,14 +141,22 @@
   const passwordInput = document.getElementById('admin-password');
   const loginBtn = document.getElementById('loginBtn');
   const loginMsg = document.getElementById('loginMsg');
-  const adminMsg = document.getElementById('adminMsg');
   const calTitle = document.getElementById('calTitle');
   const calGrid = document.getElementById('calGrid');
   const prevMonthBtn = document.getElementById('prevMonth');
   const nextMonthBtn = document.getElementById('nextMonth');
 
+  const dayModal = document.getElementById('dayModal');
+  const dayModalClose = document.getElementById('dayModalClose');
+  const dayModalTitle = document.getElementById('dayModalTitle');
+  const dayModalBookings = document.getElementById('dayModalBookings');
+  const dayModalToggle = document.getElementById('dayModalToggle');
+  const dayModalMsg = document.getElementById('dayModalMsg');
+
   let sessionPassword = sessionStorage.getItem('vivispa-admin-pass') || '';
   let closedDates = [];
+  let bookingsByDate = {};
+  let activeDate = null;
   const todayISO = new Date().toISOString().split('T')[0];
   const today = new Date();
   let viewYear = today.getFullYear();
@@ -129,7 +178,6 @@
     });
 
     const firstDay = new Date(viewYear, viewMonth, 1);
-    // getDay(): 0=Sun..6=Sat -> convert to Monday-first index (0=Mon..6=Sun)
     const leadingEmpty = (firstDay.getDay() + 6) % 7;
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
@@ -146,45 +194,102 @@
       el.textContent = d;
       el.dataset.date = iso;
       if (iso === todayISO) el.classList.add('cal-day--today');
-      if (iso < todayISO) {
-        el.classList.add('cal-day--past');
-      } else {
-        el.addEventListener('click', () => toggleDate(iso, el));
-      }
+      if (iso < todayISO) el.classList.add('cal-day--past');
       if (closedDates.includes(iso)) el.classList.add('cal-day--closed');
+      if (bookingsByDate[iso] && bookingsByDate[iso].length) {
+        const dot = document.createElement('span');
+        dot.className = 'cal-day-dot';
+        el.appendChild(dot);
+      }
+      el.addEventListener('click', () => openDayModal(iso));
       calGrid.appendChild(el);
     }
   };
 
-  const toggleDate = async (iso, el) => {
+  const openDayModal = (iso) => {
+    activeDate = iso;
+    const dt = new Date(iso + 'T00:00:00');
+    dayModalTitle.textContent = dt.toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    const bookings = (bookingsByDate[iso] || []).slice().sort((a, b) => a.time.localeCompare(b.time));
+    dayModalBookings.innerHTML = '';
+    if (!bookings.length) {
+      dayModalBookings.innerHTML = '<p class="no-bookings">Nicio rezervare în această zi.</p>';
+    } else {
+      bookings.forEach((b) => {
+        const div = document.createElement('div');
+        div.className = 'booking-entry';
+        div.innerHTML = `<span class="b-time">${b.time}</span> — ${b.name}<br>` +
+          `Telefon: ${b.phone}` +
+          (b.service ? `<br>Serviciu: ${b.service}` : '') +
+          (b.message ? `<br>Mesaj: ${b.message}` : '');
+        dayModalBookings.appendChild(div);
+      });
+    }
+
     const isClosed = closedDates.includes(iso);
+    const isPast = iso < todayISO;
+    dayModalToggle.textContent = isClosed ? 'Marchează ca zi lucrătoare' : 'Marchează ca zi liberă';
+    dayModalToggle.style.display = isPast ? 'none' : 'block';
+    dayModalMsg.textContent = '';
+    dayModalMsg.className = 'admin-msg';
+
+    dayModal.classList.add('open');
+  };
+  const closeDayModal = () => dayModal.classList.remove('open');
+
+  dayModalToggle.addEventListener('click', async () => {
+    if (!activeDate) return;
+    const isClosed = closedDates.includes(activeDate);
     const action = isClosed ? 'remove' : 'add';
-    el.classList.add('cal-day--saving');
-    adminMsg.textContent = 'Se salvează...';
-    adminMsg.className = 'admin-msg';
+    dayModalToggle.disabled = true;
+    dayModalMsg.textContent = 'Se salvează...';
+    dayModalMsg.className = 'admin-msg';
     try {
       const res = await fetch('/api/admin-update-dates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: sessionPassword, action, date: iso }),
+        body: JSON.stringify({ password: sessionPassword, action, date: activeDate }),
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Eroare necunoscută');
       closedDates = result.dates || [];
       renderCalendar();
-      adminMsg.textContent = 'Salvat. Poate dura circa un minut până apare live pe site.';
-      adminMsg.classList.add('success');
+      dayModalToggle.textContent = closedDates.includes(activeDate) ? 'Marchează ca zi lucrătoare' : 'Marchează ca zi liberă';
+      dayModalMsg.textContent = 'Salvat. Poate dura circa un minut până apare live pe site.';
+      dayModalMsg.classList.add('success');
     } catch (err) {
-      adminMsg.textContent = err.message;
-      adminMsg.classList.add('error');
-      el.classList.remove('cal-day--saving');
+      dayModalMsg.textContent = err.message;
+      dayModalMsg.classList.add('error');
+    } finally {
+      dayModalToggle.disabled = false;
     }
+  });
+
+  dayModalClose.addEventListener('click', closeDayModal);
+  dayModal.addEventListener('click', (e) => { if (e.target === dayModal) closeDayModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDayModal(); });
+
+  const groupBookings = (bookings) => {
+    const map = {};
+    bookings.forEach((b) => {
+      if (!map[b.date]) map[b.date] = [];
+      map[b.date].push(b);
+    });
+    return map;
   };
 
-  const loadDates = async () => {
-    const res = await fetch('/api/closed-dates');
-    const data = await res.json();
-    closedDates = data.dates || [];
+  const loadData = async () => {
+    const [closedRes, bookingsRes] = await Promise.all([
+      fetch('/api/closed-dates').then((r) => r.json()),
+      fetch('/api/admin-bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: sessionPassword }),
+      }).then((r) => r.json()),
+    ]);
+    closedDates = closedRes.dates || [];
+    bookingsByDate = groupBookings(bookingsRes.bookings || []);
     renderCalendar();
   };
 
@@ -204,7 +309,6 @@
     if (!pass) return;
     loginMsg.textContent = 'Se verifică...';
     loginMsg.className = 'admin-msg';
-    // Validate by attempting a harmless "remove" of a bogus date; a wrong password returns 401
     const res = await fetch('/api/admin-update-dates', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -219,7 +323,7 @@
     sessionStorage.setItem('vivispa-admin-pass', pass);
     loginPanel.style.display = 'none';
     adminPanel.style.display = 'block';
-    loadDates();
+    loadData();
   };
 
   loginBtn.addEventListener('click', tryLogin);
@@ -234,7 +338,7 @@
       if (res.status !== 401) {
         loginPanel.style.display = 'none';
         adminPanel.style.display = 'block';
-        loadDates();
+        loadData();
       }
     });
   }

@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
           res.status(409).json({ error: 'Acest interval orar este deja rezervat. Te rugăm să alegi altă oră.' });
           return;
         }
-        bookings.push({ date, time, name, phone });
+        bookings.push({ date, time, name, phone, service: service || '', message: message || '' });
         await putFile(repo, ghToken, 'data/bookings.json', { bookings }, sha, `Rezervare nouă: ${date} ${time}`);
         reserved = true;
       } catch (err) {
