@@ -66,7 +66,7 @@ document.querySelectorAll('.carousel-wrap').forEach(wrap => {
 
   const visibleCount = () => window.innerWidth <= 760 ? 1 : window.innerWidth <= 960 ? 2 : 3;
   const gap = parseFloat(getComputedStyle(track).columnGap) || 26;
-  const secondsPerCard = 1;
+  const secondsPerCard = 2.5;
 
   const sizeTrack = () => {
     const count = visibleCount();
@@ -90,8 +90,49 @@ document.querySelectorAll('.carousel-wrap').forEach(wrap => {
 const bookingForm = document.getElementById('bookingForm');
 if (bookingForm) {
   const statusEl = document.getElementById('bookingStatus');
+  const nameInput = document.getElementById('bf-name');
+  const phoneInput = document.getElementById('bf-phone');
+  const dateInput = document.getElementById('bf-date');
+  const nameError = document.getElementById('bf-name-error');
+  const phoneError = document.getElementById('bf-phone-error');
+  const dateError = document.getElementById('bf-date-error');
+
+  // Never allow picking a date that's already in the past
+  const todayISO = new Date().toISOString().split('T')[0];
+  dateInput.setAttribute('min', todayISO);
+
+  const NAME_RE = /^[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,}(\s+[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,})+$/;
+  const PHONE_RE = /^\+373[0-9]{8}$/;
+
+  const validateName = () => {
+    const ok = NAME_RE.test(nameInput.value.trim());
+    nameError.textContent = ok ? '' : 'Introdu numele și prenumele complet.';
+    return ok;
+  };
+  const validatePhone = () => {
+    const digits = phoneInput.value.replace(/[\s()-]/g, '');
+    const ok = PHONE_RE.test(digits);
+    phoneError.textContent = ok ? '' : 'Format: +373 urmat de 8 cifre (ex: +373 691 23 456).';
+    return ok;
+  };
+  const validateDate = () => {
+    if (!dateInput.value) { dateError.textContent = ''; return true; }
+    const ok = dateInput.value >= todayISO;
+    dateError.textContent = ok ? '' : 'Alege o dată din prezent sau din viitor.';
+    return ok;
+  };
+
+  nameInput.addEventListener('blur', validateName);
+  phoneInput.addEventListener('blur', validatePhone);
+  dateInput.addEventListener('change', validateDate);
+
   bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const nameOk = validateName();
+    const phoneOk = validatePhone();
+    const dateOk = validateDate();
+    if (!nameOk || !phoneOk || !dateOk) return;
+
     const submitBtn = bookingForm.querySelector('button[type="submit"]');
     const data = Object.fromEntries(new FormData(bookingForm));
 

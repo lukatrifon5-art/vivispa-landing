@@ -40,7 +40,7 @@
 </header>
 
 <section class="photo-hero page-hero">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Indoor_pool_of_spa_with_open_door_at_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg/1920px-Indoor_pool_of_spa_with_open_door_at_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg" alt="Aqua Zonă ViviSpa">
+  <img src="assets/images/real/diode-laser.jpg" alt="Echipa ViviSpa" style="object-position: 50% 15%;">
   <div class="photo-hero-content">
     <span class="hero-eyebrow">Contact & Program</span>
     <h1>Te așteptăm la ViviSpa</h1>
@@ -57,12 +57,14 @@
     <form class="booking-form reveal" id="bookingForm">
       <div class="booking-row">
         <div class="field">
-          <label for="bf-name">Nume</label>
-          <input type="text" id="bf-name" name="name" required placeholder="Numele tău">
+          <label for="bf-name">Nume complet</label>
+          <input type="text" id="bf-name" name="name" required placeholder="Nume și prenume">
+          <span class="field-error" id="bf-name-error"></span>
         </div>
         <div class="field">
           <label for="bf-phone">Telefon</label>
-          <input type="tel" id="bf-phone" name="phone" required placeholder="+373 6XX XX XXX">
+          <input type="tel" id="bf-phone" name="phone" required placeholder="+373 6XX XX XXX" inputmode="tel" maxlength="16">
+          <span class="field-error" id="bf-phone-error"></span>
         </div>
       </div>
       <div class="booking-row">
@@ -84,6 +86,7 @@
         <div class="field">
           <label for="bf-date">Data preferată</label>
           <input type="date" id="bf-date" name="date">
+          <span class="field-error" id="bf-date-error"></span>
         </div>
       </div>
       <div class="field">
@@ -176,7 +179,7 @@
       <span>© 2026 ViviSpa. Toate drepturile rezervate.</span>
       <a href="https://vivispa.md" target="_blank" rel="noopener">vivispa.md</a>
     </div>
-    <p class="footer-credit">Fotografii: ViviSpa (Instagram @vivispa.md) · Amantaka Resort & Hotel (Wikimedia Commons, CC BY-SA 4.0) · rawpixel.com & StockSnap.io (CC0)</p>
+    <p class="footer-credit">Fotografii: ViviSpa (vivispa.md &amp; Instagram @vivispa.md)</p>
   </div>
 </footer>
 

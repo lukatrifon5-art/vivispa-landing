@@ -6,9 +6,24 @@ module.exports = async (req, res) => {
 
   const { name, phone, service, date, message } = req.body || {};
 
-  if (!name || !phone) {
-    res.status(400).json({ error: 'Numele și telefonul sunt obligatorii.' });
+  const NAME_RE = /^[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,}(\s+[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,})+$/;
+  const PHONE_RE = /^\+373[0-9]{8}$/;
+
+  if (!name || !NAME_RE.test(String(name).trim())) {
+    res.status(400).json({ error: 'Introdu numele și prenumele complet.' });
     return;
+  }
+  const cleanPhone = String(phone || '').replace(/[\s()-]/g, '');
+  if (!PHONE_RE.test(cleanPhone)) {
+    res.status(400).json({ error: 'Numărul de telefon nu este valid.' });
+    return;
+  }
+  if (date) {
+    const todayISO = new Date().toISOString().split('T')[0];
+    if (String(date) < todayISO) {
+      res.status(400).json({ error: 'Data preferată nu poate fi în trecut.' });
+      return;
+    }
   }
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
