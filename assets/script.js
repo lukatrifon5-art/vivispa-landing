@@ -48,12 +48,18 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 revealEls.forEach(el => revealObserver.observe(el));
 
-// Reviews carousel: auto-advance + manual arrows, pause on hover
-const carouselTrack = document.getElementById('reviewsTrack');
-if (carouselTrack) {
-  const prevBtn = document.querySelector('.carousel-arrow.prev');
-  const nextBtn = document.querySelector('.carousel-arrow.next');
-  const step = () => carouselTrack.querySelector('.review-card').getBoundingClientRect().width + 26;
+// Carousels (reviews, services, ...): auto-advance + manual arrows, pause on hover
+document.querySelectorAll('.carousel-wrap').forEach(wrap => {
+  const carouselTrack = wrap.querySelector('.carousel-track');
+  if (!carouselTrack) return;
+  const prevBtn = wrap.querySelector('.carousel-arrow.prev');
+  const nextBtn = wrap.querySelector('.carousel-arrow.next');
+  const step = () => {
+    const item = carouselTrack.firstElementChild;
+    if (!item) return 0;
+    const gap = parseFloat(getComputedStyle(carouselTrack).columnGap) || 0;
+    return item.getBoundingClientRect().width + gap;
+  };
 
   const scrollNext = () => {
     const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
@@ -74,13 +80,11 @@ if (carouselTrack) {
   if (nextBtn) nextBtn.addEventListener('click', scrollNext);
   if (prevBtn) prevBtn.addEventListener('click', scrollPrev);
 
-  let autoplay = setInterval(scrollNext, 4500);
-  const wrap = carouselTrack.closest('.carousel-wrap');
-  if (wrap) {
-    wrap.addEventListener('mouseenter', () => clearInterval(autoplay));
-    wrap.addEventListener('mouseleave', () => { autoplay = setInterval(scrollNext, 4500); });
-  }
-}
+  const intervalMs = parseInt(wrap.dataset.interval, 10) || 2500;
+  let autoplay = setInterval(scrollNext, intervalMs);
+  wrap.addEventListener('mouseenter', () => clearInterval(autoplay));
+  wrap.addEventListener('mouseleave', () => { autoplay = setInterval(scrollNext, intervalMs); });
+});
 
 // Lightbox for gallery pages
 const lightbox = document.getElementById('lightbox');

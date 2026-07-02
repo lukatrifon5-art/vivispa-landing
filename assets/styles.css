@@ -225,10 +225,14 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 .services { padding: 100px 0; background: var(--warm-beige); }
 .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .service-card {
+  display: block;
   background: var(--white);
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   transition: transform .5s var(--ease), box-shadow .5s var(--ease);
 }
 .service-card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px -20px rgba(46,42,36,0.25); }
@@ -255,6 +259,28 @@ nav a:hover::after, nav a.active::after { width: 100%; }
   background: var(--warm-beige);
   padding: 5px 12px;
   border-radius: 999px;
+}
+
+.services-grid.carousel-track {
+  display: flex;
+  gap: 28px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  padding-bottom: 4px;
+}
+.services-grid.carousel-track::-webkit-scrollbar { display: none; }
+.services-grid.carousel-track .service-card {
+  flex: 0 0 calc(33.333% - 19px);
+  scroll-snap-align: start;
+}
+@media (max-width: 960px) {
+  .services-grid.carousel-track .service-card { flex: 0 0 calc(50% - 14px); }
+}
+@media (max-width: 760px) {
+  .services-grid.carousel-track .service-card { flex: 0 0 88%; }
 }
 
 /* ===== PACKAGES ===== */
