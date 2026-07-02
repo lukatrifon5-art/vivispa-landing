@@ -48,33 +48,54 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 revealEls.forEach(el => revealObserver.observe(el));
 
-// Carousels (reviews, services, ...): auto-advance + manual arrows, pause on hover
+// Carousels (reviews, services, ...): seamless infinite auto-advance + manual arrows, pause on hover
 document.querySelectorAll('.carousel-wrap').forEach(wrap => {
   const carouselTrack = wrap.querySelector('.carousel-track');
   if (!carouselTrack) return;
   const prevBtn = wrap.querySelector('.carousel-arrow.prev');
   const nextBtn = wrap.querySelector('.carousel-arrow.next');
+
+  // Duplicate the item set once so scrolling forward never has to jump backwards visibly
+  const originalCount = carouselTrack.children.length;
+  Array.from(carouselTrack.children).forEach(item => {
+    const clone = item.cloneNode(true);
+    clone.classList.remove('reveal', 'reveal-delay-1', 'reveal-delay-2', 'reveal-delay-3');
+    carouselTrack.appendChild(clone);
+  });
+
   const step = () => {
     const item = carouselTrack.firstElementChild;
     if (!item) return 0;
     const gap = parseFloat(getComputedStyle(carouselTrack).columnGap) || 0;
     return item.getBoundingClientRect().width + gap;
   };
-
-  const scrollNext = () => {
-    const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
-    if (carouselTrack.scrollLeft >= maxScroll - 4) {
-      carouselTrack.scrollTo({ left: 0, behavior: 'smooth' });
-    } else {
-      carouselTrack.scrollBy({ left: step(), behavior: 'smooth' });
-    }
+  const setWidth = () => {
+    const firstClone = carouselTrack.children[originalCount];
+    return firstClone ? firstClone.offsetLeft - carouselTrack.offsetLeft : carouselTrack.scrollWidth / 2;
   };
+
+  // Once scrolling settles past the original set (into the cloned copy), snap back invisibly.
+  // Driven by the scroll event itself (debounced) so it never races with overlapping
+  // autoplay ticks or manual arrow clicks.
+  let settleTimer;
+  carouselTrack.addEventListener('scroll', () => {
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      const width = setWidth();
+      if (carouselTrack.scrollLeft >= width - 2) {
+        carouselTrack.scrollTo({ left: carouselTrack.scrollLeft - width, behavior: 'auto' });
+      } else if (carouselTrack.scrollLeft < 0) {
+        carouselTrack.scrollTo({ left: carouselTrack.scrollLeft + width, behavior: 'auto' });
+      }
+    }, 120);
+  });
+
+  const scrollNext = () => carouselTrack.scrollBy({ left: step(), behavior: 'smooth' });
   const scrollPrev = () => {
-    if (carouselTrack.scrollLeft <= 4) {
-      carouselTrack.scrollTo({ left: carouselTrack.scrollWidth, behavior: 'smooth' });
-    } else {
-      carouselTrack.scrollBy({ left: -step(), behavior: 'smooth' });
+    if (carouselTrack.scrollLeft <= 2) {
+      carouselTrack.scrollTo({ left: setWidth(), behavior: 'auto' });
     }
+    carouselTrack.scrollBy({ left: -step(), behavior: 'smooth' });
   };
 
   if (nextBtn) nextBtn.addEventListener('click', scrollNext);
