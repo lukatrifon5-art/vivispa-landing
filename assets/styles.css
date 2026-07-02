@@ -161,6 +161,23 @@ nav a:hover::after, nav a.active::after { width: 100%; }
   from { transform: scale(1.14); opacity: 0.7; }
   to { transform: scale(1.04); opacity: 1; }
 }
+
+/* Homepage hero: 3 photos crossfading on an 18s loop, each with its own animation-delay set inline.
+   fill-mode:backwards keeps a slide at opacity:0 during its own delay instead of the default
+   opaque state, so the others don't get covered before their turn. */
+.hero-slideshow .hero-slide {
+  animation-name: heroSlideFade;
+  animation-duration: 18s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: backwards;
+}
+@keyframes heroSlideFade {
+  0%, 100% { opacity: 0; transform: scale(1.1); }
+  8% { opacity: 1; transform: scale(1.06); }
+  25% { opacity: 1; transform: scale(1.02); }
+  33% { opacity: 0; transform: scale(1); }
+}
 .photo-hero::before {
   content: '';
   position: absolute; inset: 0;
@@ -503,14 +520,44 @@ nav a:hover::after, nav a.active::after { width: 100%; }
   color: #b0574f;
   margin-top: 6px;
 }
+.date-field {
+  position: relative;
+  background: var(--white);
+  border: 1px solid rgba(46,42,36,0.16);
+  border-radius: 10px;
+  transition: border-color .3s ease;
+}
+.date-field:focus-within { border-color: var(--gold); }
 .field input[type="date"] {
   color-scheme: light;
   cursor: pointer;
+  position: relative;
+  z-index: 0;
+  background: transparent;
+  border: none;
 }
+.field input[type="date"]:focus { border-color: transparent; }
 .field input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(56%) sepia(24%) saturate(701%) hue-rotate(1deg) brightness(94%) contrast(87%);
   cursor: pointer;
 }
+/* Hide the raw "zz/ll/aaaa" placeholder segments until a date is chosen,
+   showing a clean custom placeholder instead. */
+.field input[type="date"]:not(.has-value)::-webkit-datetime-edit-year-field,
+.field input[type="date"]:not(.has-value)::-webkit-datetime-edit-month-field,
+.field input[type="date"]:not(.has-value)::-webkit-datetime-edit-day-field,
+.field input[type="date"]:not(.has-value)::-webkit-datetime-edit-text {
+  color: transparent;
+}
+.date-placeholder {
+  position: absolute;
+  left: 16px; top: 50%; transform: translateY(-50%);
+  font-size: 0.95rem;
+  color: rgba(46,42,36,0.42);
+  pointer-events: none;
+  z-index: 1;
+}
+.field input[type="date"].has-value ~ .date-placeholder { display: none; }
 .booking-form .btn { width: 100%; border: none; cursor: pointer; }
 .booking-form .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .booking-status { margin-top: 14px; font-size: 0.9rem; text-align: center; min-height: 1.2em; }

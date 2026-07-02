@@ -68,14 +68,24 @@ document.querySelectorAll('.carousel-wrap').forEach(wrap => {
   const gap = parseFloat(getComputedStyle(track).columnGap) || 26;
   const secondsPerCard = 2.5;
 
+  // Only touch the animation's CSS custom properties when the width actually
+  // changed by a meaningful amount, so mobile browser-chrome resize events
+  // (address bar show/hide) don't restart or jitter the marquee needlessly.
+  let lastCardWidth = null;
   const sizeTrack = () => {
     const count = visibleCount();
     const cardWidth = (wrap.clientWidth - gap * (count - 1)) / count;
+    if (lastCardWidth !== null && Math.abs(cardWidth - lastCardWidth) < 1) return;
+    lastCardWidth = cardWidth;
     track.style.setProperty('--card-width', cardWidth + 'px');
     track.style.setProperty('--marquee-duration', (originalItems.length * secondsPerCard) + 's');
   };
   sizeTrack();
-  window.addEventListener('resize', sizeTrack);
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(sizeTrack, 200);
+  });
 
   const nudge = (dir) => {
     const anim = track.getAnimations()[0];
@@ -112,6 +122,11 @@ if (bookingForm) {
   const openDatePicker = () => { try { dateInput.showPicker(); } catch (err) {} };
   dateInput.addEventListener('focus', openDatePicker);
   dateInput.addEventListener('click', openDatePicker);
+
+  // Toggle whether the custom "Alege o dată" placeholder or the real value shows
+  const syncDateValueState = () => dateInput.classList.toggle('has-value', !!dateInput.value);
+  dateInput.addEventListener('change', syncDateValueState);
+  syncDateValueState();
 
   const NAME_RE = /^[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,}(\s+[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,})+$/;
   const PHONE_RE = /^\+373[0-9]{8}$/;
