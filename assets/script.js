@@ -80,7 +80,13 @@ document.querySelectorAll('.carousel-wrap').forEach(wrap => {
   const nudge = (dir) => {
     const anim = track.getAnimations()[0];
     if (!anim) return;
-    anim.currentTime = (anim.currentTime || 0) + dir * secondsPerCard * 1000;
+    const durationMs = parseFloat(getComputedStyle(track).animationDuration) * 1000;
+    let next = (anim.currentTime || 0) + dir * secondsPerCard * 1000;
+    if (durationMs > 0) {
+      // Wrap into [0, durationMs) so it can never go negative and freeze the animation
+      next = ((next % durationMs) + durationMs) % durationMs;
+    }
+    anim.currentTime = next;
   };
   if (nextBtn) nextBtn.addEventListener('click', () => nudge(1));
   if (prevBtn) prevBtn.addEventListener('click', () => nudge(-1));
@@ -100,6 +106,12 @@ if (bookingForm) {
   // Never allow picking a date that's already in the past
   const todayISO = new Date().toISOString().split('T')[0];
   dateInput.setAttribute('min', todayISO);
+
+  // Open the native calendar picker straight away instead of making the user
+  // aim for the tiny icon or type the date by hand
+  const openDatePicker = () => { try { dateInput.showPicker(); } catch (err) {} };
+  dateInput.addEventListener('focus', openDatePicker);
+  dateInput.addEventListener('click', openDatePicker);
 
   const NAME_RE = /^[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,}(\s+[A-Za-zĂÂÎȘȚăâîșțŞŢşţ]{2,})+$/;
   const PHONE_RE = /^\+373[0-9]{8}$/;
