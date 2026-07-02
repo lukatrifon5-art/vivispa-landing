@@ -1,3 +1,5 @@
+const { getFile, putFile } = require('./_github');
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -29,33 +31,13 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' },
-    });
-    if (!getRes.ok) throw new Error('Nu am putut citi fișierul curent din GitHub.');
-    const getData = await getRes.json();
-    const current = JSON.parse(Buffer.from(getData.content, 'base64').toString('utf-8'));
-
-    let dates = Array.isArray(current.dates) ? current.dates : [];
+    const { content, sha } = await getFile(repo, token, filePath);
+    let dates = Array.isArray(content.dates) ? content.dates : [];
     if (action === 'add' && !dates.includes(date)) dates.push(date);
     if (action === 'remove') dates = dates.filter((d) => d !== date);
     dates.sort();
 
-    const newContent = Buffer.from(JSON.stringify({ dates }, null, 2) + '\n').toString('base64');
-
-    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' },
-      body: JSON.stringify({
-        message: `Actualizare zile nelucrătoare (${action} ${date})`,
-        content: newContent,
-        sha: getData.sha,
-      }),
-    });
-    if (!putRes.ok) {
-      const err = await putRes.json();
-      throw new Error(err.message || 'Eroare la salvare în GitHub.');
-    }
+    await putFile(repo, token, filePath, { dates }, sha, `Actualizare zile nelucrătoare (${action} ${date})`);
 
     res.status(200).json({ ok: true, dates });
   } catch (err) {

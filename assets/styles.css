@@ -474,6 +474,43 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 }
 .lightbox-caption { position: absolute; bottom: 30px; left: 0; right: 0; text-align: center; color: rgba(255,253,249,0.8); font-size: 0.9rem; }
 
+/* ===== SERVICE MODAL ===== */
+.service-modal {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(20, 18, 14, 0.72);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease;
+  padding: 24px;
+}
+.service-modal.open { opacity: 1; pointer-events: auto; }
+.service-modal-inner {
+  background: var(--cream);
+  border-radius: var(--radius);
+  max-width: 720px; width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 40px 90px rgba(0,0,0,0.4);
+  transform: translateY(16px);
+  transition: transform .35s ease;
+}
+.service-modal.open .service-modal-inner { transform: translateY(0); }
+.service-modal-close {
+  position: absolute; top: 18px; right: 18px; z-index: 2;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(20,18,14,0.5); border: none;
+  color: var(--white); font-size: 1.3rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.service-modal-photo { aspect-ratio: 16/9; overflow: hidden; }
+.service-modal-photo img { width: 100%; height: 100%; object-fit: cover; }
+.service-modal-body { padding: 34px 36px 38px; }
+.service-modal-body h3 { font-size: 1.5rem; margin-bottom: 14px; }
+.service-modal-body p { color: var(--charcoal-soft); font-size: 1rem; line-height: 1.7; margin-bottom: 20px; }
+.service-modal-body .service-tags { margin-bottom: 28px; }
+.service-modal-body .btn { width: 100%; text-align: center; }
+
 /* ===== CONTACT ===== */
 .contact { padding: 120px 0; }
 

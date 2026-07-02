@@ -66,7 +66,7 @@ document.querySelectorAll('.carousel-wrap').forEach(wrap => {
 
   const visibleCount = () => window.innerWidth <= 760 ? 1 : window.innerWidth <= 960 ? 2 : 3;
   const gap = parseFloat(getComputedStyle(track).columnGap) || 26;
-  const secondsPerCard = 2.5;
+  const secondsPerCard = 4.5;
 
   // Only touch the animation's CSS custom properties when the width actually
   // changed by a meaningful amount, so mobile browser-chrome resize events
@@ -115,9 +115,34 @@ if (bookingForm) {
   const nameInput = document.getElementById('bf-name');
   const phoneInput = document.getElementById('bf-phone');
   const dateInput = document.getElementById('bf-date');
+  const timeSelect = document.getElementById('bf-time');
   const nameError = document.getElementById('bf-name-error');
   const phoneError = document.getElementById('bf-phone-error');
   const dateError = document.getElementById('bf-date-error');
+  const timeError = document.getElementById('bf-time-error');
+
+  const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
+
+  const loadTimeSlots = async (date) => {
+    timeSelect.innerHTML = '<option value="">Se încarcă orele...</option>';
+    timeSelect.disabled = true;
+    let takenTimes = [];
+    try {
+      const res = await fetch(`/api/booked-slots?date=${encodeURIComponent(date)}`);
+      const data = await res.json();
+      takenTimes = data.times || [];
+    } catch (err) {}
+    timeSelect.innerHTML = '<option value="">Alege o oră</option>';
+    TIME_SLOTS.forEach((slot) => {
+      const opt = document.createElement('option');
+      opt.value = slot;
+      const taken = takenTimes.includes(slot);
+      opt.textContent = taken ? `${slot} (indisponibil)` : slot;
+      opt.disabled = taken;
+      timeSelect.appendChild(opt);
+    });
+    timeSelect.disabled = false;
+  };
 
   // Never allow picking a date that's already in the past
   const todayISO = new Date().toISOString().split('T')[0];
@@ -165,17 +190,32 @@ if (bookingForm) {
     dateError.textContent = '';
     return true;
   };
+  const validateTime = () => {
+    const ok = !!timeSelect.value;
+    timeError.textContent = ok ? '' : 'Alege o oră pentru rezervare.';
+    return ok;
+  };
 
   nameInput.addEventListener('blur', validateName);
   phoneInput.addEventListener('blur', validatePhone);
-  dateInput.addEventListener('change', validateDate);
+  dateInput.addEventListener('change', () => {
+    validateDate();
+    if (dateInput.value && validateDate()) {
+      loadTimeSlots(dateInput.value);
+    } else {
+      timeSelect.innerHTML = '<option value="">Alege întâi data</option>';
+      timeSelect.disabled = true;
+    }
+  });
+  timeSelect.addEventListener('change', validateTime);
 
   bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nameOk = validateName();
     const phoneOk = validatePhone();
     const dateOk = validateDate();
-    if (!nameOk || !phoneOk || !dateOk) return;
+    const timeOk = validateTime();
+    if (!nameOk || !phoneOk || !dateOk || !timeOk) return;
 
     const submitBtn = bookingForm.querySelector('button[type="submit"]');
     const data = Object.fromEntries(new FormData(bookingForm));
@@ -191,10 +231,19 @@ if (bookingForm) {
         body: JSON.stringify(data),
       });
       const result = await response.json();
+      if (response.status === 409) {
+        timeError.textContent = result.error;
+        statusEl.textContent = 'Ora aleasă tocmai a fost rezervată de altcineva. Alege alta.';
+        statusEl.classList.add('error');
+        loadTimeSlots(dateInput.value);
+        return;
+      }
       if (!response.ok) throw new Error(result.error || 'Eroare necunoscută');
       statusEl.textContent = 'Mulțumim! Te contactăm în curând pentru confirmare.';
       statusEl.classList.add('success');
       bookingForm.reset();
+      timeSelect.innerHTML = '<option value="">Alege întâi data</option>';
+      timeSelect.disabled = true;
     } catch (err) {
       statusEl.textContent = 'Nu am putut trimite cererea. Sună-ne la +373 608 58 486.';
       statusEl.classList.add('error');
@@ -225,4 +274,33 @@ if (lightbox) {
   closeBtn.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+}
+
+// Service detail modal: clicking a service card shows its full info + a booking CTA
+// instead of jumping straight to the contact form
+const serviceModal = document.getElementById('serviceModal');
+if (serviceModal) {
+  const modalImg = serviceModal.querySelector('.service-modal-photo img');
+  const modalTitle = serviceModal.querySelector('h3');
+  const modalDesc = serviceModal.querySelector('.service-modal-body p');
+  const modalTags = serviceModal.querySelector('.service-modal-body .service-tags');
+  const modalCloseBtn = serviceModal.querySelector('.service-modal-close');
+
+  document.querySelectorAll('.services-grid.carousel-track .service-card').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      const img = card.querySelector('.service-photo img');
+      modalImg.src = img.src;
+      modalImg.alt = img.alt;
+      modalTitle.textContent = card.querySelector('h3').textContent;
+      modalDesc.textContent = card.querySelector('.service-body p').textContent;
+      modalTags.innerHTML = card.querySelector('.service-tags').innerHTML;
+      serviceModal.classList.add('open');
+    });
+  });
+
+  const closeServiceModal = () => serviceModal.classList.remove('open');
+  modalCloseBtn.addEventListener('click', closeServiceModal);
+  serviceModal.addEventListener('click', (e) => { if (e.target === serviceModal) closeServiceModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeServiceModal(); });
 }
