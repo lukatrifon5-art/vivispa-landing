@@ -117,6 +117,10 @@ if (bookingForm) {
   const todayISO = new Date().toISOString().split('T')[0];
   dateInput.setAttribute('min', todayISO);
 
+  // Dates the owner has marked as closed (fetched once, checked on every date change)
+  let closedDates = [];
+  fetch('/api/closed-dates').then((r) => r.json()).then((d) => { closedDates = d.dates || []; }).catch(() => {});
+
   // Open the native calendar picker straight away instead of making the user
   // aim for the tiny icon or type the date by hand
   const openDatePicker = () => { try { dateInput.showPicker(); } catch (err) {} };
@@ -144,9 +148,16 @@ if (bookingForm) {
   };
   const validateDate = () => {
     if (!dateInput.value) { dateError.textContent = ''; return true; }
-    const ok = dateInput.value >= todayISO;
-    dateError.textContent = ok ? '' : 'Alege o dată din prezent sau din viitor.';
-    return ok;
+    if (dateInput.value < todayISO) {
+      dateError.textContent = 'Alege o dată din prezent sau din viitor.';
+      return false;
+    }
+    if (closedDates.includes(dateInput.value)) {
+      dateError.textContent = 'Această zi este nelucrătoare. Te rugăm să alegi altă dată.';
+      return false;
+    }
+    dateError.textContent = '';
+    return true;
   };
 
   nameInput.addEventListener('blur', validateName);

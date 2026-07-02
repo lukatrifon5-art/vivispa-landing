@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -23,6 +26,16 @@ module.exports = async (req, res) => {
     if (String(date) < todayISO) {
       res.status(400).json({ error: 'Data preferată nu poate fi în trecut.' });
       return;
+    }
+    try {
+      const closedPath = path.join(process.cwd(), 'data', 'closed-dates.json');
+      const closed = JSON.parse(fs.readFileSync(closedPath, 'utf-8')).dates || [];
+      if (closed.includes(String(date))) {
+        res.status(400).json({ error: 'Această zi este nelucrătoare. Te rugăm să alegi altă dată.' });
+        return;
+      }
+    } catch (err) {
+      // If the file can't be read, don't block a legitimate booking over it
     }
   }
 
