@@ -191,32 +191,6 @@ nav a:hover::after, nav a.active::after { width: 100%; }
 }
 .rating-chip strong { color: var(--gold-soft); }
 
-.scroll-cue {
-  position: absolute;
-  bottom: 34px; left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: rgba(255,253,249,0.75);
-}
-.scroll-cue span {
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-.scroll-cue svg {
-  width: 18px; height: 18px;
-  stroke: rgba(255,253,249,0.75);
-  animation: scrollBounce 2s ease-in-out infinite;
-}
-@keyframes scrollBounce {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50% { transform: translateY(7px); opacity: 1; }
-}
-
 /* ===== REVEAL ===== */
 .reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
 .reveal.visible { opacity: 1; transform: translateY(0); }
