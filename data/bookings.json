@@ -1,10 +1,3 @@
 {
-  "bookings": [
-    {
-      "date": "2026-07-05",
-      "time": "10:00",
-      "name": "Ana Popescu",
-      "phone": "+37369123456"
-    }
-  ]
+  "bookings": []
 }
