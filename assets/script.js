@@ -144,8 +144,11 @@ if (bookingForm) {
     timeSelect.disabled = false;
   };
 
-  // Never allow picking a date that's already in the past
-  const todayISO = new Date().toISOString().split('T')[0];
+  // Never allow picking a date that's already in the past. Uses the browser's
+  // LOCAL date, not toISOString() (which is UTC and reports the wrong day
+  // whenever local time has crossed midnight but UTC hasn't yet, or vice versa).
+  const now = new Date();
+  const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   dateInput.setAttribute('min', todayISO);
 
   // Dates the owner has marked as closed (fetched once, checked on every date change)

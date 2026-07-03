@@ -31,7 +31,10 @@ module.exports = async (req, res) => {
     res.status(400).json({ error: 'Alege o oră pentru rezervare.' });
     return;
   }
-  const todayISO = new Date().toISOString().split('T')[0];
+  // Compute "today" in Moldova's timezone explicitly — the server may run in a
+  // different region than the client, so neither UTC nor the server's local
+  // time is guaranteed to match the calendar date a Moldovan visitor expects.
+  const todayISO = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Chisinau' }).format(new Date());
   if (String(date) < todayISO) {
     res.status(400).json({ error: 'Data preferată nu poate fi în trecut.' });
     return;
