@@ -1,0 +1,331 @@
+/* ============================================================
+   Bare Beauty — minimal, natural-look injectables
+   Palette: #FFFFFF bg · #EDE4DC soft nude · #B8A99A stone
+            #2B2622 warm near-black · #6B625B muted body
+   Type:    Fraunces (serif, headings) · Inter (sans, body)
+   ============================================================ */
+
+:root {
+  --white:  #FFFFFF;
+  --nude:   #EDE4DC;
+  --stone:  #B8A99A;
+  --ink:    #2B2622;
+  --muted:  #6B625B;
+
+  --serif: "Fraunces", Georgia, serif;
+  --sans:  "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Generous, deliberate whitespace — empty space is part of the design */
+  --gutter: clamp(1.5rem, 6vw, 8rem);
+  --section-gap: clamp(6rem, 14vw, 12rem);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+a { color: inherit; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(1.25rem, 3vw, 2.25rem) var(--gutter);
+  z-index: 10;
+}
+
+.brand {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.header-link {
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+/* Shared "line that says less" underline reveal */
+.reveal-link {
+  position: relative;
+  display: inline-block;
+}
+.reveal-link::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -0.28em;
+  width: 100%;
+  height: 1px;
+  background: var(--stone);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-link:hover::after { transform: scaleX(1); }
+
+/* ---------- Hero (typographic) ---------- */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 8rem var(--gutter) var(--section-gap);
+}
+
+.hero-inner { max-width: 46rem; }
+
+.eyebrow {
+  margin: 0 0 1.75rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(3.4rem, 12vw, 8.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  margin: 0 0 2rem;
+  color: var(--ink);
+}
+
+.hero-sub {
+  max-width: 32rem;
+  margin: 0 0 2.75rem;
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  color: var(--muted);
+}
+
+.text-cta {
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+/* ---------- Generic section ---------- */
+.section { padding: var(--section-gap) var(--gutter); }
+
+.section-head { max-width: 40rem; margin: 0 auto clamp(3rem, 7vw, 6rem); text-align: center; }
+
+.section-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0 0 1.25rem;
+  color: var(--ink);
+}
+
+.section-intro {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+/* ---------- Treatments ---------- */
+.treatments { max-width: 60rem; margin: 0 auto; }
+
+.treatment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.treatment {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "name  price"
+    "desc  price";
+  gap: 0.15rem 1.5rem;
+  align-items: baseline;
+  padding: 1.9rem 0;
+  border-top: 1px solid rgba(184, 169, 154, 0.35);
+  position: relative;
+}
+.treatment:last-child { border-bottom: 1px solid rgba(184, 169, 154, 0.35); }
+
+/* the "line that says less" — a hair-thin line grows on hover */
+.treatment::after {
+  content: "";
+  position: absolute;
+  left: 0; top: -1px;
+  width: 100%;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.treatment:hover::after { transform: scaleX(1); }
+
+.t-name {
+  grid-area: name;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--ink);
+}
+.t-desc {
+  grid-area: desc;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.t-price {
+  grid-area: price;
+  align-self: center;
+  font-size: 1.05rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- Experience ---------- */
+.experience { max-width: 72rem; margin: 0 auto; }
+
+.experience-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+.exp-img { margin: 0; overflow: hidden; background: var(--nude); }
+.exp-img img { width: 100%; height: 100%; object-fit: cover; }
+
+.exp-img--tall { grid-row: span 2; }
+
+.exp-text {
+  padding: clamp(1rem, 3vw, 2.5rem) 0;
+}
+.exp-text .section-title { text-align: left; }
+.exp-text p {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+  max-width: 30rem;
+}
+
+/* ---------- Booking ---------- */
+.booking { background: var(--nude); text-align: center; }
+
+.booking-inner { max-width: 34rem; margin: 0 auto; }
+
+.booking-line {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 2.5rem;
+  color: var(--ink);
+}
+
+.button-cta {
+  display: inline-block;
+  padding: 1.05rem 2.75rem;
+  background: var(--ink);
+  color: var(--white);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background 0.35s ease, transform 0.35s ease;
+}
+.button-cta:hover { background: #43392f; transform: translateY(-1px); }
+.button-cta::after { display: none; } /* solid button, no underline reveal */
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: clamp(4rem, 9vw, 7rem) var(--gutter) 3rem;
+  border-top: 1px solid rgba(184, 169, 154, 0.35);
+}
+
+.footer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem 4rem;
+  align-items: flex-start;
+}
+
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin-right: auto;
+}
+
+.footer-col p { margin: 0 0 0.4rem; color: var(--muted); font-size: 0.95rem; }
+.footer-col a { text-decoration: none; }
+.footer-col a:hover { color: var(--ink); }
+
+.footer-fine {
+  margin: 3.5rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--stone);
+}
+
+/* ---------- Signature: fade + line-draw on scroll ----------
+   Content is visible by default (no-JS / SEO safe). Only when JS is
+   present (html.js) do we hide sections, then reveal them on scroll. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 1s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.js .reveal.in-view {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .experience-grid { grid-template-columns: 1fr; }
+  .exp-img--tall { grid-row: auto; }
+  .exp-text .section-title { text-align: left; }
+
+  .treatment {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name  price"
+      "desc  desc";
+  }
+  .t-price { align-self: baseline; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; }
+  .js .reveal,
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal-link::after,
+  .treatment::after { transition: none; }
+}
