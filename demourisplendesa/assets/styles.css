@@ -18,6 +18,8 @@
   /* Generous, deliberate whitespace — empty space is part of the design */
   --gutter: clamp(1.5rem, 6vw, 8rem);
   --section-gap: clamp(6rem, 14vw, 12rem);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 *,
@@ -83,19 +85,52 @@ a { color: inherit; }
   background: var(--stone);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.5s var(--ease);
 }
 .reveal-link:hover::after { transform: scaleX(1); }
 
-/* ---------- Hero (typographic) ---------- */
+/* ---------- Hero (typographic over ghosted slideshow) ---------- */
 .hero {
+  position: relative;
+  overflow: hidden;
   min-height: 100svh;
   display: flex;
   align-items: center;
   padding: 8rem var(--gutter) var(--section-gap);
 }
 
-.hero-inner { max-width: 46rem; }
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 2.4s ease, transform 9s ease;
+  will-change: opacity, transform;
+}
+.hero-slide.is-active { opacity: 1; transform: scale(1); }
+
+/* White scrim: images fade almost to nothing — atmosphere, not photo.
+   Stronger on the left where the type sits. */
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(102deg,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.88) 42%,
+      rgba(255, 255, 255, 0.70) 100%),
+    linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.60) 55%,
+      rgba(255, 255, 255, 0.85) 100%);
+}
+
+.hero-inner { position: relative; z-index: 2; max-width: 46rem; }
 
 .eyebrow {
   margin: 0 0 1.75rem;
@@ -129,6 +164,50 @@ a { color: inherit; }
   text-decoration: none;
   color: var(--ink);
 }
+
+.hero-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+.hero-scroll::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 2.4rem;
+  margin: 0.6rem auto 0;
+  background: linear-gradient(var(--stone), transparent);
+  animation: scrollpulse 2.6s var(--ease) infinite;
+  transform-origin: top;
+}
+@keyframes scrollpulse {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.4; }
+  50%      { transform: scaleY(1);    opacity: 1; }
+}
+
+/* ---------- Hero load sequence (staggered rise) ---------- */
+.js .hero-inner > *,
+.js .hero-scroll {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.js body.loaded .hero-inner > *,
+.js body.loaded .hero-scroll {
+  opacity: 1;
+  transform: none;
+  transition: opacity 1.1s ease, transform 1.1s var(--ease);
+}
+.js body.loaded .hero-inner > *:nth-child(1) { transition-delay: 0.15s; }
+.js body.loaded .hero-inner > *:nth-child(2) { transition-delay: 0.32s; }
+.js body.loaded .hero-inner > *:nth-child(3) { transition-delay: 0.52s; }
+.js body.loaded .hero-inner > *:nth-child(4) { transition-delay: 0.72s; }
+.js body.loaded .hero-scroll { transition-delay: 1.1s; }
 
 /* ---------- Generic section ---------- */
 .section { padding: var(--section-gap) var(--gutter); }
@@ -184,7 +263,7 @@ a { color: inherit; }
   background: var(--ink);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.55s var(--ease);
 }
 .treatment:hover::after { transform: scaleX(1); }
 
@@ -220,7 +299,12 @@ a { color: inherit; }
 }
 
 .exp-img { margin: 0; overflow: hidden; background: var(--nude); }
-.exp-img img { width: 100%; height: 100%; object-fit: cover; }
+.exp-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s var(--ease);
+}
+.exp-img:hover img { transform: scale(1.04); }
 
 .exp-img--tall { grid-row: span 2; }
 
@@ -234,8 +318,132 @@ a { color: inherit; }
   max-width: 30rem;
 }
 
+/* ---------- Full-screen statement moment ---------- */
+.statement {
+  min-height: 92svh;
+  display: grid;
+  place-items: center;
+  padding: var(--section-gap) var(--gutter);
+  text-align: center;
+  /* the whole point: near-empty white with a whisper of warmth */
+  background:
+    radial-gradient(120% 80% at 50% 45%, rgba(237, 228, 220, 0.5) 0%, rgba(255, 255, 255, 0) 60%);
+}
+
+.statement-inner {
+  max-width: 40rem;
+}
+.js .statement-inner {
+  opacity: 0;
+  transform: translateY(26px) scale(0.985);
+  transition: opacity 1.3s ease, transform 1.5s var(--ease);
+}
+.js .statement-inner.in-view {
+  opacity: 1;
+  transform: none;
+}
+
+.statement-line {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.8rem;
+  color: var(--ink);
+}
+.statement-sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 2.6vw, 1.7rem);
+  margin: 0;
+  color: var(--stone);
+}
+
+/* ---------- Reviews carousel ---------- */
+.reviews { background: var(--nude); }
+
+.carousel { max-width: 46rem; margin: 0 auto; }
+
+.carousel-viewport {
+  position: relative;
+  min-height: 12rem;
+  display: grid;
+  place-items: center;
+}
+
+.review {
+  grid-area: 1 / 1;
+  margin: 0;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease, transform 0.8s var(--ease);
+  pointer-events: none;
+}
+.review.is-active {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.review-quote {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.4rem, 3.2vw, 2.25rem);
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 1.6rem;
+}
+.review-cite {
+  font-style: normal;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: clamp(2rem, 5vw, 3.25rem);
+}
+
+.car-arrow {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted);
+  padding: 0.4rem;
+  transition: color 0.3s ease, transform 0.3s var(--ease);
+}
+.car-arrow:hover { color: var(--ink); transform: translateY(-1px); }
+.car-arrow:focus-visible { outline: 1px solid var(--stone); outline-offset: 4px; }
+
+.car-dots { display: flex; gap: 0.6rem; }
+.car-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(43, 38, 34, 0.22);
+  transition: background 0.3s ease, transform 0.3s var(--ease);
+}
+.car-dot:hover { background: rgba(43, 38, 34, 0.45); }
+.car-dot.is-active { background: var(--ink); transform: scale(1.25); }
+.car-dot:focus-visible { outline: 1px solid var(--stone); outline-offset: 3px; }
+
 /* ---------- Booking ---------- */
-.booking { background: var(--nude); text-align: center; }
+.booking { text-align: center; }
 
 .booking-inner { max-width: 34rem; margin: 0 auto; }
 
@@ -262,44 +470,83 @@ a { color: inherit; }
 .button-cta:hover { background: #43392f; transform: translateY(-1px); }
 .button-cta::after { display: none; } /* solid button, no underline reveal */
 
-/* ---------- Footer ---------- */
+/* ---------- Footer (large, complete) ---------- */
 .site-footer {
-  padding: clamp(4rem, 9vw, 7rem) var(--gutter) 3rem;
+  padding: clamp(5rem, 11vw, 9rem) var(--gutter) 2.5rem;
   border-top: 1px solid rgba(184, 169, 154, 0.35);
+  background: var(--white);
 }
 
-.footer-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2.5rem 4rem;
-  align-items: flex-start;
+.footer-top {
+  display: grid;
+  grid-template-columns: 1.15fr 1.85fr;
+  gap: clamp(3rem, 8vw, 7rem);
+  align-items: start;
 }
 
-.footer-brand {
+.footer-lead { max-width: 26rem; }
+
+.footer-wordmark {
   font-family: var(--serif);
-  font-size: 1.3rem;
+  font-weight: 300;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0 0 1.4rem;
   color: var(--ink);
-  margin-right: auto;
+}
+.footer-tagline {
+  margin: 0 0 2.25rem;
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 22rem;
 }
 
-.footer-col p { margin: 0 0 0.4rem; color: var(--muted); font-size: 0.95rem; }
-.footer-col a { text-decoration: none; }
-.footer-col a:hover { color: var(--ink); }
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.5rem 2rem;
+}
 
-.footer-fine {
-  margin: 3.5rem 0 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+.footer-h {
+  margin: 0 0 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   color: var(--stone);
 }
+.footer-col p { margin: 0 0 0.55rem; color: var(--muted); font-size: 0.95rem; }
+.footer-col a { text-decoration: none; transition: color 0.3s ease; }
+.footer-col a:hover { color: var(--ink); }
+
+.footer-base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 2rem;
+  margin-top: clamp(3.5rem, 8vw, 6rem);
+  padding-top: 2rem;
+  border-top: 1px solid rgba(184, 169, 154, 0.28);
+}
+
+.footer-fine {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--stone);
+}
+.footer-credit { margin-right: auto; }
+.footer-top-link { text-decoration: none; color: var(--muted); }
+.footer-top-link:hover { color: var(--ink); }
 
 /* ---------- Signature: fade + line-draw on scroll ----------
    Content is visible by default (no-JS / SEO safe). Only when JS is
    present (html.js) do we hide sections, then reveal them on scroll. */
 .js .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 1s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(28px);
+  transition: opacity 1.1s ease, transform 1.1s var(--ease);
 }
 .js .reveal.in-view {
   opacity: 1;
@@ -319,6 +566,13 @@ a { color: inherit; }
       "desc  desc";
   }
   .t-price { align-self: baseline; }
+
+  .hero-scroll { display: none; }
+
+  .footer-top { grid-template-columns: 1fr; gap: 3rem; }
+  .footer-cols { grid-template-columns: repeat(2, 1fr); gap: 2.25rem 1.5rem; }
+  .footer-base { flex-direction: column; align-items: flex-start; }
+  .footer-credit { margin-right: 0; }
 }
 
 /* ---------- Reduced motion ---------- */
@@ -326,6 +580,12 @@ a { color: inherit; }
   * { scroll-behavior: auto !important; }
   .js .reveal,
   .reveal { opacity: 1; transform: none; transition: none; }
+  .js .hero-inner > *,
+  .js .hero-scroll { opacity: 1; transform: none; }
   .reveal-link::after,
-  .treatment::after { transition: none; }
+  .treatment::after,
+  .hero-slide,
+  .exp-img img,
+  .review { transition: none; }
+  .hero-scroll::after { animation: none; }
 }

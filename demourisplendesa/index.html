@@ -20,7 +20,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,300;9..144,0,400;9..144,1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="assets/styles.css" />
 
@@ -38,8 +38,14 @@
 
   <main id="top">
 
-    <!-- 1. HERO — typographic -->
+    <!-- 1. HERO — typographic, over a slow ghosted image slideshow -->
     <section class="hero">
+      <div class="hero-bg" aria-hidden="true" data-slideshow>
+        <div class="hero-slide is-active" style="background-image:url('assets/img/experience-1.jpg')"></div>
+        <div class="hero-slide" style="background-image:url('assets/img/experience-4.jpg')"></div>
+        <div class="hero-slide" style="background-image:url('assets/img/experience-3.jpg')"></div>
+      </div>
+
       <div class="hero-inner">
         <p class="eyebrow">Natural-look injectables</p>
         <h1 class="hero-title">Less,<br />done right.</h1>
@@ -51,6 +57,8 @@
           Book a consultation
         </a>
       </div>
+
+      <div class="hero-scroll" aria-hidden="true">Scroll</div>
     </section>
 
     <!-- 2. TREATMENTS -->
@@ -125,7 +133,54 @@
       </div>
     </section>
 
-    <!-- 4. BOOKING CTA -->
+    <!-- Full-screen quiet statement (fades + scales in on scroll) -->
+    <section class="statement">
+      <div class="statement-inner" data-statement>
+        <p class="statement-line">No one will know.</p>
+        <p class="statement-sub">That&rsquo;s rather the point.</p>
+      </div>
+    </section>
+
+    <!-- 4. REVIEWS — fading testimonial carousel -->
+    <section class="section reviews reveal">
+      <div class="section-head">
+        <h2 class="section-title">What they don&rsquo;t say</h2>
+        <p class="section-intro">The best compliment is the one nobody makes.</p>
+      </div>
+
+      <div class="carousel" data-carousel>
+        <div class="carousel-viewport">
+          <blockquote class="review is-active">
+            <p class="review-quote">I look rested, not &ldquo;done.&rdquo; People just think I&rsquo;ve been sleeping well.</p>
+            <cite class="review-cite">Maren H. — Austin</cite>
+          </blockquote>
+          <blockquote class="review">
+            <p class="review-quote">She talked me out of half of what I asked for. That&rsquo;s when I trusted her.</p>
+            <cite class="review-cite">Priya R. — Dallas</cite>
+          </blockquote>
+          <blockquote class="review">
+            <p class="review-quote">Subtle enough that my sister still hasn&rsquo;t worked out what changed.</p>
+            <cite class="review-cite">Elise T. — Houston</cite>
+          </blockquote>
+          <blockquote class="review">
+            <p class="review-quote">The only work I&rsquo;ve had that looks like no work at all.</p>
+            <cite class="review-cite">Joanna M. — Marfa</cite>
+          </blockquote>
+          <blockquote class="review">
+            <p class="review-quote">I came in wanting more. I left with less — exactly right.</p>
+            <cite class="review-cite">Camille D. — San Antonio</cite>
+          </blockquote>
+        </div>
+
+        <div class="carousel-controls">
+          <button class="car-arrow car-prev" type="button" aria-label="Previous review">&larr;</button>
+          <div class="car-dots" role="tablist" aria-label="Choose a review"></div>
+          <button class="car-arrow car-next" type="button" aria-label="Next review">&rarr;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. BOOKING CTA -->
     <section class="section booking reveal">
       <div class="booking-inner">
         <p class="booking-line">Ready when you are.</p>
@@ -137,20 +192,56 @@
 
   </main>
 
-  <!-- 5. FOOTER -->
+  <!-- 6. FOOTER -->
   <footer class="site-footer">
-    <div class="footer-grid">
-      <div class="footer-brand">Bare&nbsp;Beauty</div>
-      <div class="footer-col">
-        <p>418 Larkspur Lane</p>
-        <p>Austin, TX 78703</p>
+    <div class="footer-top">
+      <div class="footer-lead">
+        <p class="footer-wordmark">Bare&nbsp;Beauty</p>
+        <p class="footer-tagline">
+          Natural-look injectables, done with restraint.
+          Less, done right.
+        </p>
+        <a class="button-cta reveal-link" href="https://splendessa.com" target="_blank" rel="noopener">
+          Book a consultation
+        </a>
       </div>
-      <div class="footer-col">
-        <p><a href="tel:+15550142398">(555) 014-2398</a></p>
-        <p><a href="mailto:hello@barebeauty.com">hello@barebeauty.com</a></p>
-      </div>
+
+      <nav class="footer-cols" aria-label="Footer">
+        <div class="footer-col">
+          <h3 class="footer-h">Visit</h3>
+          <p>418 Larkspur Lane</p>
+          <p>Austin, TX 78703</p>
+          <p><a href="https://maps.google.com" target="_blank" rel="noopener">Get directions</a></p>
+        </div>
+
+        <div class="footer-col">
+          <h3 class="footer-h">Contact</h3>
+          <p><a href="tel:+15550142398">(555) 014-2398</a></p>
+          <p><a href="mailto:hello@barebeauty.com">hello@barebeauty.com</a></p>
+          <p><a href="https://instagram.com" target="_blank" rel="noopener">@barebeauty</a></p>
+        </div>
+
+        <div class="footer-col">
+          <h3 class="footer-h">Hours</h3>
+          <p>Tue &ndash; Fri &nbsp; 10 &ndash; 6</p>
+          <p>Saturday &nbsp; 10 &ndash; 4</p>
+          <p>Sun &amp; Mon &nbsp; Closed</p>
+        </div>
+
+        <div class="footer-col">
+          <h3 class="footer-h">Explore</h3>
+          <p><a href="#top">Home</a></p>
+          <p><a href="#top">Treatments</a></p>
+          <p><a href="https://splendessa.com" target="_blank" rel="noopener">Book</a></p>
+        </div>
+      </nav>
     </div>
-    <p class="footer-fine">© 2026 Bare Beauty. Less, done right.</p>
+
+    <div class="footer-base">
+      <p class="footer-fine">© 2026 Bare Beauty. All rights reserved.</p>
+      <p class="footer-fine footer-credit">Consultations by appointment · Austin, Texas</p>
+      <a class="footer-fine footer-top-link reveal-link" href="#top">Back to top ↑</a>
+    </div>
   </footer>
 
   <script src="assets/main.js" defer></script>
